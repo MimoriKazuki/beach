@@ -25,30 +25,6 @@ export default function SignUpPage() {
 
   const [error, setError] = useState<string | null>(null)
 
-  const handleLineLogin = async () => {
-    setIsLoading(true)
-    setError(null)
-    
-    try {
-      const supabase = createClient()
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'github', // 一時的にGitHubを使用（LINEプロバイダー設定後に'line'に変更）
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback?signup=true`
-        }
-      })
-      
-      if (error) {
-        console.error('LINE login error:', error)
-        setError('LINEログインに失敗しました')
-        setIsLoading(false)
-      }
-    } catch (error) {
-      console.error('LINE login error:', error)
-      setError('LINEログインに失敗しました')
-      setIsLoading(false)
-    }
-  }
 
   const handleEmailStart = () => {
     setStep('email')
@@ -210,37 +186,7 @@ export default function SignUpPage() {
 
         {/* Step 1: Choose signup method */}
         {step === 'method' && (
-
           <div className="space-y-4">
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full flex items-center justify-center gap-2 h-14"
-              onClick={handleLineLogin}
-              disabled={isLoading}
-            >
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3Z"
-                  fill="#00B900"
-                />
-                <path
-                  d="M12 8.5C9.51472 8.5 7.5 10.2157 7.5 12.3333C7.5 13.9106 8.37965 15.2925 9.69033 16.0644C9.76842 16.1054 9.82137 16.1833 9.82137 16.2717C9.82137 16.3162 9.81209 16.3607 9.79477 16.4013L9.21201 17.7952C9.17976 17.8714 9.24642 17.95 9.32822 17.95C9.36926 17.95 9.40777 17.9314 9.43415 17.8987L11.1402 16.0238C11.1882 15.9684 11.2576 15.936 11.3316 15.936C11.5479 15.9563 11.7705 15.9667 12 15.9667C14.4853 15.9667 16.5 14.451 16.5 12.3333C16.5 10.2157 14.4853 8.5 12 8.5Z"
-                  fill="white"
-                />
-              </svg>
-              {isLoading ? "接続中..." : "LINEで登録"}
-            </Button>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">または</span>
-              </div>
-            </div>
-
             <Button
               type="button"
               variant="default"
