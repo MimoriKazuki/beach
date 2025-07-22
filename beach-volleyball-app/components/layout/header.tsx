@@ -5,6 +5,7 @@ import { useAuth } from "@/components/providers/auth-provider"
 import Link from "next/link"
 import { User } from "lucide-react"
 import Image from "next/image"
+import { useEffect, useState } from "react"
 
 interface HeaderProps {
   title?: string
@@ -13,19 +14,28 @@ interface HeaderProps {
 
 export function Header({ title = "ビーチボールバレー", showSettings = true }: HeaderProps) {
   const { user } = useAuth()
+  const [demoUserAvatar, setDemoUserAvatar] = useState<string | null>(null)
   
-  // デモユーザー情報を取得してアバターを表示
-  const getDemoUserAvatar = () => {
-    if (typeof window === 'undefined') {
+  useEffect(() => {
+    // デモユーザー情報を取得してアバターを表示
+    const getDemoUserAvatar = () => {
+      if (typeof window === 'undefined') {
+        return null
+      }
+      const demoUser = localStorage.getItem('demo_user')
+      if (demoUser) {
+        try {
+          const userData = JSON.parse(demoUser)
+          return userData.avatar || null
+        } catch {
+          return null
+        }
+      }
       return null
     }
-    const demoUser = localStorage.getItem('demo_user')
-    if (demoUser) {
-      const userData = JSON.parse(demoUser)
-      return userData.avatar
-    }
-    return null
-  }
+    
+    setDemoUserAvatar(getDemoUserAvatar())
+  }, [user])
   
   return (
     <header className="fixed top-0 left-0 right-0 z-40 bg-background">
@@ -38,9 +48,9 @@ export function Header({ title = "ビーチボールバレー", showSettings = t
           {user && showSettings ? (
             <Link href="/profile">
               <div className="relative w-8 h-8 rounded-full overflow-hidden bg-primary/10 hover:bg-primary/20 transition-colors cursor-pointer">
-                {getDemoUserAvatar() ? (
+                {demoUserAvatar ? (
                   <Image
-                    src={getDemoUserAvatar()}
+                    src={demoUserAvatar}
                     alt="ユーザーアイコン"
                     fill
                     className="object-cover"
