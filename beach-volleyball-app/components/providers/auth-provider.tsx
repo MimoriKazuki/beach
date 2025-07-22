@@ -79,6 +79,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     checkAuth()
     
+    // カスタムイベントをリッスン
+    const handleAuthChange = (event: CustomEvent) => {
+      checkAuth()
+    }
+    
+    window.addEventListener('demo-auth-change', handleAuthChange as any)
+    
+    // ストレージの変更を監視（他のタブでの変更に対応）
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'demo_user') {
+        checkAuth()
+      }
+    }
+    
+    window.addEventListener('storage', handleStorageChange)
+    
     // デモモードまたは環境変数が設定されていない場合はここで終了
     const forceDemo = true // 開発用: 強制的にデモモード
     if (forceDemo || !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL === 'https://placeholder.supabase.co') {
@@ -135,7 +151,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false)
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      subscription.unsubscribe()
+      window.removeEventListener('demo-auth-change', handleAuthChange as any)
+      window.removeEventListener('storage', handleStorageChange)
+    }
   }, [])
 
   return (

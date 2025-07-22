@@ -21,7 +21,13 @@
       "Bash(done)",
       "Bash(cp:*)",
       "Bash(find:*)",
-      "Bash(npm run lint)"
+      "Bash(npm run lint)",
+      "Bash(npm run build:*)",
+      "Bash(vercel)",
+      "Bash(vercel:*)",
+      "Bash(git add:*)",
+      "Bash(git push:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }

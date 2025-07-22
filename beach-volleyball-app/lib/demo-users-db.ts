@@ -22,6 +22,14 @@ export interface DemoUser {
 const USERS_KEY = 'demo_users_db'
 const CURRENT_USER_KEY = 'demo_user'
 
+// ログアウト関数
+export function logout(): void {
+  if (typeof window === 'undefined') return
+  
+  localStorage.removeItem(CURRENT_USER_KEY)
+  window.dispatchEvent(new CustomEvent('demo-auth-change', { detail: null }))
+}
+
 // 全ユーザーを取得
 export function getAllUsers(): DemoUser[] {
   if (typeof window === 'undefined') return []
@@ -80,6 +88,9 @@ export function setCurrentUser(user: DemoUser): void {
   // 現在のユーザーとして保存（パスワードは除外）
   const { password, ...userWithoutPassword } = user
   localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword))
+  
+  // AuthProviderの状態を更新するためにカスタムイベントを発火
+  window.dispatchEvent(new CustomEvent('demo-auth-change', { detail: userWithoutPassword }))
 }
 
 // メールアドレスの重複チェック

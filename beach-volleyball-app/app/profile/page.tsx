@@ -92,7 +92,9 @@ export default function ProfilePage() {
   const handleLogout = async () => {
     // デモユーザーの場合
     if (demoUser) {
-      localStorage.removeItem('demo_user')
+      // デモユーザーDBのlogout関数を使用
+      const { logout } = await import('@/lib/demo-users-db')
+      logout()
       router.push("/auth/login")
       router.refresh()
       return
