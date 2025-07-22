@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app:*)",
+      "Bash(chmod:*)",
+      "Bash(./setup.sh:*)",
+      "Bash(npx shadcn:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(npx tailwindcss:*)",
+      "Bash(rm:*)",
+      "Bash(touch:*)",
+      "Bash(node test-dates.js)",
+      "Bash(lsof:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Bash(mkdir:*)",
+      "Bash(for size in 72 96 128 144 152 192 384 512)",
+      "Bash(do touch \"icon-$sizex$size.png\")",
+      "Bash(done)",
+      "Bash(cp:*)",
+      "Bash(find:*)",
+      "Bash(npm run lint)"
+    ],
+    "deny": []
+  }
+}

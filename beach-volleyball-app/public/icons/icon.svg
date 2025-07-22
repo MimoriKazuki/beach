@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <!-- Background Circle -->
+  <circle cx="256" cy="256" r="256" fill="#3b82f6"/>
+  
+  <!-- Beach Ball Design -->
+  <g transform="translate(256, 256)">
+    <!-- Ball -->
+    <circle cx="0" cy="0" r="120" fill="white" stroke="#1e40af" stroke-width="8"/>
+    
+    <!-- Ball Pattern -->
+    <path d="M -120 0 A 120 120 0 0 1 0 -120 L 0 0 Z" fill="#60a5fa"/>
+    <path d="M 0 -120 A 120 120 0 0 1 120 0 L 0 0 Z" fill="#dbeafe"/>
+    <path d="M 120 0 A 120 120 0 0 1 0 120 L 0 0 Z" fill="#60a5fa"/>
+    <path d="M 0 120 A 120 120 0 0 1 -120 0 L 0 0 Z" fill="#dbeafe"/>
+    
+    <!-- Center -->
+    <circle cx="0" cy="0" r="15" fill="#1e40af"/>
+  </g>
+  
+  <!-- Text "BV" -->
+  <text x="256" y="420" font-family="Arial, sans-serif" font-size="72" font-weight="bold" text-anchor="middle" fill="white">BV</text>
+</svg>

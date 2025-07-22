@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run dev:*)",
+      "Bash(pkill:*)",
+      "Bash(true)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(curl:*)",
+      "Bash(open /tmp/update_user_to_super_admin.html)",
+      "Bash(node:*)",
+      "Bash(npm run build:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ],
+    "deny": []
+  }
+}

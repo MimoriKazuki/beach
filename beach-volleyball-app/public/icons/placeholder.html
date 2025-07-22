@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Icon Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f3f4f6;
+        }
+        .icon-container {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        canvas {
+            display: block;
+            margin: 0 auto 10px;
+            border: 1px solid #e5e7eb;
+        }
+        .size-label {
+            font-size: 12px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <h1>ビーチボールバレー アイコン</h1>
+    <p>各サイズのアイコンを右クリックして「画像を保存」してください。</p>
+    
+    <div id="icons"></div>
+
+    <script>
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+        const container = document.getElementById('icons');
+
+        sizes.forEach(size => {
+            const div = document.createElement('div');
+            div.className = 'icon-container';
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            // Background
+            ctx.fillStyle = '#3b82f6';
+            ctx.fillRect(0, 0, size, size);
+
+            // Center circle (ball)
+            const center = size / 2;
+            const ballRadius = size * 0.3;
+            
+            // White ball background
+            ctx.beginPath();
+            ctx.arc(center, center, ballRadius, 0, Math.PI * 2);
+            ctx.fillStyle = 'white';
+            ctx.fill();
+            ctx.strokeStyle = '#1e40af';
+            ctx.lineWidth = size * 0.02;
+            ctx.stroke();
+
+            // Ball segments
+            const colors = ['#60a5fa', '#dbeafe'];
+            for (let i = 0; i < 4; i++) {
+                ctx.beginPath();
+                ctx.moveTo(center, center);
+                ctx.arc(center, center, ballRadius, (i * Math.PI / 2), ((i + 1) * Math.PI / 2));
+                ctx.closePath();
+                ctx.fillStyle = colors[i % 2];
+                ctx.fill();
+            }
+
+            // Center dot
+            ctx.beginPath();
+            ctx.arc(center, center, ballRadius * 0.1, 0, Math.PI * 2);
+            ctx.fillStyle = '#1e40af';
+            ctx.fill();
+
+            // Text "BV"
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${size * 0.15}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('BV', center, center + ballRadius * 1.5);
+
+            div.appendChild(canvas);
+            
+            const label = document.createElement('div');
+            label.className = 'size-label';
+            label.textContent = `icon-${size}x${size}.png`;
+            div.appendChild(label);
+            
+            container.appendChild(div);
+        });
+    </script>
+</body>
+</html>
