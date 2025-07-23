@@ -26,7 +26,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isOrganizer, setIsOrganizer] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
   const [userPrefecture, setUserPrefecture] = useState<string | undefined>(undefined)
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
 
   useEffect(() => {
     const supabase = createClient()
@@ -85,6 +84,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     checkAuth()
     
+    // 初回チェック後にローディングを解除
+    setTimeout(() => {
+      setLoading(false)
+    }, 100)
+    
     // カスタムイベントをリッスン
     const handleAuthChange = (event: CustomEvent) => {
       console.log('AuthProvider: demo-auth-change event received')
@@ -109,8 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     // Supabase環境が設定されていない場合はここで終了
     if (!hasSupabaseConfig) {
-      setLoading(false)
-      setIsCheckingAuth(false)
+      // デモモードではすでにsetTimeout内でsetLoading(false)を実行
       return
     }
 
@@ -133,10 +136,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       setLoading(false)
-      setIsCheckingAuth(false)
     }).catch(() => {
       setLoading(false)
-      setIsCheckingAuth(false)
     })
 
     // Listen for auth changes
@@ -163,7 +164,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       setLoading(false)
-      setIsCheckingAuth(false)
     })
 
     return () => {

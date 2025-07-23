@@ -138,16 +138,22 @@ export default function ProfilePage() {
 
   console.log('Profile: Render check - loading:', loading, 'isInitialized:', isInitialized, 'authUser:', authUser, 'demoUser:', demoUser)
   
-  if (loading || !isInitialized) {
+  // ローディング中の表示
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner />
       </div>
     )
   }
-
-  if (!authUser && !demoUser) {
-    return null
+  
+  // 初期化完了後、認証されていない場合は何も表示しない（リダイレクト処理中）
+  if (isInitialized && !authUser && !demoUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-muted-foreground">リダイレクト中...</p>
+      </div>
+    )
   }
 
   return (
