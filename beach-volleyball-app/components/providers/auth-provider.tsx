@@ -26,6 +26,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isOrganizer, setIsOrganizer] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
   const [userPrefecture, setUserPrefecture] = useState<string | undefined>(undefined)
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
 
   useEffect(() => {
     const supabase = createClient()
@@ -61,10 +62,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           
           // 都道府県を設定
           setUserPrefecture(userData.prefecture)
+          
+          // クッキーにも設定（ミドルウェアで確認するため）
+          document.cookie = `demo_user=${encodeURIComponent(JSON.stringify({ id: userData.id, email: userData.email }))}; path=/; max-age=${60 * 60 * 24 * 7}`
         } catch (error) {
           console.error('Error parsing demo user:', error)
           // パースエラーの場合はクリア
           localStorage.removeItem('demo_user')
+          document.cookie = 'demo_user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
           setUser(null)
           setIsOrganizer(false)
           setIsAdmin(false)
@@ -74,6 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null)
         setIsOrganizer(false)
         setIsAdmin(false)
+        document.cookie = 'demo_user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
       }
     }
 
@@ -81,6 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     // カスタムイベントをリッスン
     const handleAuthChange = (event: CustomEvent) => {
+      console.log('AuthProvider: demo-auth-change event received')
       checkAuth()
     }
     
@@ -103,6 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Supabase環境が設定されていない場合はここで終了
     if (!hasSupabaseConfig) {
       setLoading(false)
+      setIsCheckingAuth(false)
       return
     }
 
@@ -125,8 +133,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       setLoading(false)
+      setIsCheckingAuth(false)
     }).catch(() => {
       setLoading(false)
+      setIsCheckingAuth(false)
     })
 
     // Listen for auth changes
@@ -153,6 +163,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       setLoading(false)
+      setIsCheckingAuth(false)
     })
 
     return () => {

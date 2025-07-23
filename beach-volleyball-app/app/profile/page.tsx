@@ -88,9 +88,15 @@ export default function ProfilePage() {
   useEffect(() => {
     // 初期化が完了してから認証チェック
     console.log('Profile: Auth check - initialized:', isInitialized, 'loading:', loading, 'authUser:', authUser, 'demoUser:', demoUser)
-    if (isInitialized && !loading && !authUser && !demoUser) {
-      console.log('Profile: No user found, redirecting to login...')
-      router.push("/auth/login")
+    
+    // ローディングが完了し、初期化も完了している場合のみチェック
+    if (!loading && isInitialized) {
+      // 認証されていない場合はログインページへ
+      if (!authUser && !demoUser) {
+        console.log('Profile: No user found, redirecting to login...')
+        router.push("/auth/login?redirect=/profile")
+        return
+      }
     }
   }, [isInitialized, loading, authUser, router, demoUser])
   
