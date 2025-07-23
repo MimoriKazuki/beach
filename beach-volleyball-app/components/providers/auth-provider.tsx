@@ -62,13 +62,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // 都道府県を設定
           setUserPrefecture(userData.prefecture)
           
-          // クッキーにも設定（ミドルウェアで確認するため）
-          document.cookie = `demo_user=${encodeURIComponent(JSON.stringify({ id: userData.id, email: userData.email }))}; path=/; max-age=${60 * 60 * 24 * 7}`
+          // クッキーにも設定（ミドルウェアで確認するため）- 最小限の情報のみ
+          document.cookie = `demo_user_id=${userData.id}; path=/; max-age=${60 * 60 * 24 * 7}`
         } catch (error) {
           console.error('Error parsing demo user:', error)
           // パースエラーの場合はクリア
           localStorage.removeItem('demo_user')
-          document.cookie = 'demo_user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+          document.cookie = 'demo_user_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
           setUser(null)
           setIsOrganizer(false)
           setIsAdmin(false)
@@ -112,33 +112,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                              process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     
     // Supabase環境が設定されていない場合はここで終了
-    if (!hasSupabaseConfig) {
+    if (!hasSupabaseConfig || !supabase) {
       // デモモードではすでにsetTimeout内でsetLoading(false)を実行
       return
     }
 
     // Get initial session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      
-      // ユーザーの権限情報を取得
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.user.id)
-          .single()
+    try {
+      supabase.auth.getSession().then(async ({ data: { session } }) => {
+        setUser(session?.user ?? null)
         
-        if (profile) {
-          setIsOrganizer(profile.role === 'organizer' || profile.role === 'admin')
-          setIsAdmin(profile.role === 'admin')
+        // ユーザーの権限情報を取得
+        if (session?.user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single()
+          
+          if (profile) {
+            setIsOrganizer(profile.role === 'organizer' || profile.role === 'admin')
+            setIsAdmin(profile.role === 'admin')
+          }
         }
-      }
-      
+        
+        setLoading(false)
+      }).catch((error) => {
+        console.error('Auth session error:', error)
+        setLoading(false)
+      })
+    } catch (error) {
+      console.error('Auth initialization error:', error)
       setLoading(false)
-    }).catch(() => {
-      setLoading(false)
-    })
+    }
 
     // Listen for auth changes
     const {

@@ -6,13 +6,18 @@ export function createClient() {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   if (!supabaseUrl || !supabaseAnonKey || supabaseUrl === 'https://placeholder.supabase.co') {
-    console.warn('Supabase環境変数が設定されていません。モックモードで動作します。')
-    // モック用の仮のクライアントを返す（実際には動作しない）
-    return null as any
+    console.log('Supabase環境変数が設定されていません。デモモードで動作します。')
+    // nullを返してデモモードとして動作
+    return null
   }
 
-  return createBrowserClient<Database>(
-    supabaseUrl,
-    supabaseAnonKey
-  )
+  try {
+    return createBrowserClient<Database>(
+      supabaseUrl,
+      supabaseAnonKey
+    )
+  } catch (error) {
+    console.error('Supabaseクライアント作成エラー:', error)
+    return null
+  }
 }

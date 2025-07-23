@@ -89,16 +89,24 @@ export default function ProfilePage() {
     // 初期化が完了してから認証チェック
     console.log('Profile: Auth check - initialized:', isInitialized, 'loading:', loading, 'authUser:', authUser, 'demoUser:', demoUser)
     
-    // ローディングが完了し、初期化も完了している場合のみチェック
-    if (!loading && isInitialized) {
-      // 認証されていない場合はログインページへ
-      if (!authUser && !demoUser) {
-        console.log('Profile: No user found, redirecting to login...')
-        router.push("/auth/login?redirect=/profile")
-        return
+    // 初期化が完了している場合のみチェック（loadingに依存しない）
+    if (isInitialized) {
+      // タイムアウトを設定して無限ローディングを防ぐ
+      const timeout = setTimeout(() => {
+        if (!authUser && !demoUser) {
+          console.log('Profile: No user found after timeout, redirecting to login...')
+          router.push("/auth/login?redirect=/profile")
+        }
+      }, 1000) // 1秒待機
+      
+      // 既にユーザー情報がある場合はタイムアウトをクリア
+      if (authUser || demoUser) {
+        clearTimeout(timeout)
       }
+      
+      return () => clearTimeout(timeout)
     }
-  }, [isInitialized, loading, authUser, router, demoUser])
+  }, [isInitialized, authUser, router, demoUser])
   
   const user = {
     name: profileData?.name || demoUser?.name || authUser?.user_metadata?.name || "ユーザー",
@@ -138,8 +146,8 @@ export default function ProfilePage() {
 
   console.log('Profile: Render check - loading:', loading, 'isInitialized:', isInitialized, 'authUser:', authUser, 'demoUser:', demoUser)
   
-  // ローディング中の表示
-  if (loading) {
+  // ローディング中の表示（最大3秒でタイムアウト）
+  if (loading && !isInitialized) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner />

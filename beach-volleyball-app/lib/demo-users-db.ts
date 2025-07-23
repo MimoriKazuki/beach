@@ -29,7 +29,7 @@ export function logout(): void {
   localStorage.removeItem(CURRENT_USER_KEY)
   
   // クッキーも削除
-  document.cookie = 'demo_user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+  document.cookie = 'demo_user_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
   
   window.dispatchEvent(new CustomEvent('demo-auth-change', { detail: null }))
 }
@@ -93,8 +93,8 @@ export function setCurrentUser(user: DemoUser): void {
   const { password, ...userWithoutPassword } = user
   localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword))
   
-  // クッキーにも保存（ミドルウェアで確認するため）
-  document.cookie = `demo_user=${encodeURIComponent(JSON.stringify({ id: user.id, email: user.email }))}; path=/; max-age=${60 * 60 * 24 * 7}` // 7日間
+  // クッキーにも保存（ミドルウェアで確認するため）- 最小限の情報のみ
+  document.cookie = `demo_user_id=${user.id}; path=/; max-age=${60 * 60 * 24 * 7}` // 7日間
   
   // AuthProviderの状態を更新するためにカスタムイベントを発火
   window.dispatchEvent(new CustomEvent('demo-auth-change', { detail: userWithoutPassword }))

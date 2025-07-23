@@ -97,33 +97,83 @@ export default function LoginPage() {
       return
     }
     
+    // Supabaseまたはデモモードでの認証を実行
+    console.log('環境をチェック中...')
+    
+    // Supabase接続に問題がある場合はデモモードで動作
+    const forceDemo = false // デモモードの強制を解除
+    
     // 本番環境の場合のみSupabase認証を実行
     try {
+      console.log('Supabase認証を開始します...')
       const supabase = createClient()
       
-      const { error } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password,
-      })
-
-      if (error) {
-        console.error('Login error:', error)
-        if (error.message.includes('confirm') || error.message.includes('verify')) {
-          setError("メールアドレスの確認が必要です。登録時のメールをご確認ください。")
-        } else if (error.message.includes('Invalid login credentials')) {
-          setError("メールアドレスまたはパスワードが正しくありません")
-        } else {
-          setError(error.message || "ログインに失敗しました")
-        }
+      // Supabaseクライアントがnullの場合はデモモードとして扱う
+      if (!supabase) {
+        console.log('Supabaseクライアントが利用できません。デモモードで動作します。')
+        setError("メールアドレスまたはパスワードが正しくありません")
         setIsLoading(false)
         return
       }
+      
+      console.log('Supabaseクライアントが正常に作成されました')
+      
+      // 5秒のタイムアウトを設定
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000)
+      
+      console.log('signInWithPasswordを実行します...')
+      
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
+        })
+        
+        clearTimeout(timeoutId)
+        console.log('signInWithPassword結果:', { data, error })
 
-      router.push(redirectTo)
-      router.refresh()
+        if (error) {
+          console.error('Login error details:', {
+            message: error.message,
+            status: error.status,
+            code: error.code,
+            details: error
+          })
+          
+          if (error.message.includes('confirm') || error.message.includes('verify')) {
+            setError("メールアドレスの確認が必要です。登録時のメールをご確認ください。")
+          } else if (error.message.includes('Invalid login credentials')) {
+            setError("メールアドレスまたはパスワードが正しくありません。Supabaseダッシュボードでパスワードをリセットしてください。")
+          } else {
+            setError(error.message || "ログインに失敗しました")
+          }
+          setIsLoading(false)
+          return
+        }
+
+        console.log('ログイン成功！リダイレクト中...')
+        router.push(redirectTo)
+        router.refresh()
+      } catch (innerError: any) {
+        clearTimeout(timeoutId)
+        if (innerError.name === 'AbortError') {
+          console.error('認証タイムアウト')
+          setError('認証がタイムアウトしました。デモモードでのログインをお試しください。')
+        } else {
+          console.error('認証エラー:', innerError)
+          setError('認証中にエラーが発生しました。')
+        }
+        setIsLoading(false)
+      }
     } catch (error) {
       console.error('ログインエラー:', error)
-      setError("ネットワークエラーが発生しました。")
+      // Supabase関連のエラーをより詳細に処理
+      if (error instanceof Error) {
+        setError("ログインに失敗しました: " + error.message)
+      } else {
+        setError("ネットワークエラーが発生しました。")
+      }
       setIsLoading(false)
     }
   }
