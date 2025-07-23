@@ -83,7 +83,7 @@ export default function SignUpPage() {
       
       // メールアドレスの重複チェック
       if (isEmailTaken(formData.email)) {
-        setError("このメールアドレスは既に使用されています。")
+        setError("このメールアドレスは既に登録されています。別のメールアドレスを使用するか、ログインしてください。")
         setIsLoading(false)
         return
       }
@@ -140,8 +140,15 @@ export default function SignUpPage() {
 
       if (signUpError) {
         console.error('Sign up error:', signUpError)
-        if (signUpError.message.includes('email')) {
-          setError("このメールアドレスは既に使用されています。")
+        // メールアドレスが既に使用されているエラーを詳細に判定
+        if (signUpError.message.includes('email') || 
+            signUpError.message.includes('already registered') ||
+            signUpError.message.includes('User already registered') ||
+            signUpError.code === '23505' ||
+            signUpError.code === 'user_already_exists') {
+          setError("このメールアドレスは既に登録されています。別のメールアドレスを使用するか、ログインしてください。")
+        } else if (signUpError.message.includes('password')) {
+          setError("パスワードは6文字以上で入力してください。")
         } else {
           setError("登録に失敗しました。もう一度お試しください。")
         }
