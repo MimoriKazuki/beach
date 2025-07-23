@@ -15,6 +15,10 @@ export default function LoginPage() {
     email: "",
     password: ""
   })
+  
+  // URLパラメータからリダイレクト先を取得
+  const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '')
+  const redirectTo = searchParams.get('redirect') || '/'
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,7 +71,7 @@ export default function LoginPage() {
         
         setCurrentUser(user)
         setIsLoading(false)
-        router.push("/")
+        router.push(redirectTo)
         router.refresh()
         return
       }
@@ -81,7 +85,7 @@ export default function LoginPage() {
       console.log('保存されたユーザー: ログイン成功', savedUser)
       setCurrentUser(savedUser)
       setIsLoading(false)
-      router.push("/")
+      router.push(redirectTo)
       router.refresh()
       return
     }
@@ -115,7 +119,7 @@ export default function LoginPage() {
         return
       }
 
-      router.push("/")
+      router.push(redirectTo)
       router.refresh()
     } catch (error) {
       console.error('ログインエラー:', error)
