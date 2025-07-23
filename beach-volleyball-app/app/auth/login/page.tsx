@@ -24,11 +24,13 @@ export default function LoginPage() {
     
     console.log('ログイン試行:', formData.email)
     
-    // 強制的にデモモードとして処理（開発用）
-    const forceDemo = true
+    // Supabaseの環境変数をチェック
+    const hasSupabaseConfig = process.env.NEXT_PUBLIC_SUPABASE_URL && 
+                             process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co' &&
+                             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     
     // デモモードかどうかを先に確認
-    const isDemo = forceDemo || !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL === 'https://placeholder.supabase.co'
+    const isDemo = !hasSupabaseConfig
     
     // デモユーザーDB機能をインポート
     const { validateLogin, setCurrentUser, initializeDemoAccounts } = await import('@/lib/demo-users-db')

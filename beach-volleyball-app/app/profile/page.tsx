@@ -23,6 +23,7 @@ export default function ProfilePage() {
   const [favoriteEvents, setFavoriteEvents] = useState<any[]>([])
   const [demoUser, setDemoUser] = useState<any>(null)
   const [isInitialized, setIsInitialized] = useState(false)
+  const [profileData, setProfileData] = useState<any>(null)
 
   // デモユーザーデータを取得
   useEffect(() => {
@@ -65,6 +66,25 @@ export default function ProfilePage() {
     setFavoriteEvents(formatEvents(favorites))
   }, [])
 
+  // Supabaseからプロフィール情報を取得
+  useEffect(() => {
+    async function fetchProfile() {
+      if (authUser && supabase) {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', authUser.id)
+          .single()
+        
+        if (data && !error) {
+          setProfileData(data)
+        }
+      }
+    }
+    
+    fetchProfile()
+  }, [authUser, supabase])
+
   useEffect(() => {
     // 初期化が完了してから認証チェック
     console.log('Profile: Auth check - initialized:', isInitialized, 'loading:', loading, 'authUser:', authUser, 'demoUser:', demoUser)
@@ -75,18 +95,18 @@ export default function ProfilePage() {
   }, [isInitialized, loading, authUser, router, demoUser])
   
   const user = {
-    name: demoUser?.name || authUser?.user_metadata?.name || "ユーザー",
+    name: profileData?.name || demoUser?.name || authUser?.user_metadata?.name || "ユーザー",
     username: authUser?.email ? `@${authUser.email.split('@')[0]}` : "@user",
-    bio: demoUser?.bio || "ビーチボールバレー愛好家",
-    region: demoUser?.region || "未設定",
-    skillLevel: demoUser?.skillLevel || "beginner",
-    experienceYears: demoUser?.experienceYears || "0",
-    avatar: (demoUser?.avatar && demoUser.avatar !== "") ? demoUser.avatar : 
+    bio: profileData?.bio || demoUser?.bio || "ビーチボールバレー愛好家",
+    region: profileData?.prefecture || demoUser?.region || "未設定",
+    skillLevel: profileData?.skill_level || demoUser?.skillLevel || "beginner",
+    experienceYears: profileData?.experience_years?.toString() || demoUser?.experienceYears || "0",
+    avatar: profileData?.avatar_url || (demoUser?.avatar && demoUser.avatar !== "") ? demoUser.avatar : 
            (authUser?.user_metadata?.avatar_url && authUser?.user_metadata?.avatar_url !== "") ? authUser?.user_metadata?.avatar_url : 
            "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop",
-    team: demoUser?.team || "",
-    role: demoUser?.role || "participant",
-    email: demoUser?.email || authUser?.email || ""
+    team: profileData?.team || demoUser?.team || "",
+    role: profileData?.role || demoUser?.role || "participant",
+    email: profileData?.email || demoUser?.email || authUser?.email || ""
   }
 
   const handleLogout = async () => {

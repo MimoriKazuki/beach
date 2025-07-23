@@ -7,11 +7,8 @@ export function createClient() {
 
   if (!supabaseUrl || !supabaseAnonKey || supabaseUrl === 'https://placeholder.supabase.co') {
     console.warn('Supabase環境変数が設定されていません。モックモードで動作します。')
-    // モック用の仮のURLを返す
-    return createBrowserClient<Database>(
-      'https://example.supabase.co',
-      'example-anon-key'
-    )
+    // モック用の仮のクライアントを返す（実際には動作しない）
+    return null as any
   }
 
   return createBrowserClient<Database>(

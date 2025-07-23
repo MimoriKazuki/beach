@@ -95,9 +95,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     window.addEventListener('storage', handleStorageChange)
     
-    // デモモードまたは環境変数が設定されていない場合はここで終了
-    const forceDemo = true // 開発用: 強制的にデモモード
-    if (forceDemo || !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL === 'https://placeholder.supabase.co') {
+    // Supabaseの環境変数をチェック
+    const hasSupabaseConfig = process.env.NEXT_PUBLIC_SUPABASE_URL && 
+                             process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co' &&
+                             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    
+    // Supabase環境が設定されていない場合はここで終了
+    if (!hasSupabaseConfig) {
       setLoading(false)
       return
     }

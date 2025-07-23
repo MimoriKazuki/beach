@@ -66,11 +66,13 @@ export default function SignUpPage() {
       return
     }
     
-    // 強制的にデモモードとして処理（開発用）
-    const forceDemo = true
+    // Supabaseの環境変数をチェック
+    const hasSupabaseConfig = process.env.NEXT_PUBLIC_SUPABASE_URL && 
+                             process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co' &&
+                             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     
-    // モックモードの場合
-    if (forceDemo || !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL === 'https://placeholder.supabase.co') {
+    // Supabase環境が設定されていない場合はデモモード
+    if (!hasSupabaseConfig) {
       console.log('デモモード: 新規登録', formData)
       
       // デモユーザーDB機能をインポート
@@ -148,7 +150,7 @@ export default function SignUpPage() {
       }
 
       // 登録成功後、自動的にログインを試みる
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
       })
@@ -162,8 +164,40 @@ export default function SignUpPage() {
         } else {
           router.push("/auth/login")
         }
-      } else {
-        // ログイン成功
+      } else if (signInData?.user) {
+        // ログイン成功後、プロフィール情報を保存
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: signInData.user.id,
+            email: formData.email,
+            name: formData.name,
+            skill_level: formData.skillLevel,
+            experience_years: parseInt(formData.experienceYears) || 0,
+            prefecture: formData.prefecture,
+            role: 'participant',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+        
+        if (profileError) {
+          console.error('Profile creation error:', profileError)
+          // プロフィールが既に存在する場合は更新
+          if (profileError.code === '23505') {
+            await supabase
+              .from('profiles')
+              .update({
+                name: formData.name,
+                skill_level: formData.skillLevel,
+                experience_years: parseInt(formData.experienceYears) || 0,
+                prefecture: formData.prefecture,
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', signInData.user.id)
+          }
+        }
+        
+        // ホームページへリダイレクト
         router.push("/")
         router.refresh()
       }
