@@ -25,18 +25,19 @@ export default function PracticeRequestPage() {
     setIsSubmitting(true)
 
     try {
-      // デモユーザー情報を取得
-      const demoUser = localStorage.getItem('demo_user')
-      const userData = demoUser ? JSON.parse(demoUser) : null
-
-      if (!userData) {
+      // 認証情報をチェック
+      if (!user) {
         alert('ログインが必要です')
         router.push('/auth/login')
         return
       }
 
+      // デモユーザー情報を取得（権限チェック用）
+      const demoUser = localStorage.getItem('demo_user')
+      const userData = demoUser ? JSON.parse(demoUser) : null
+
       // 既に主催者権限を持っている場合
-      if (userData.isOrganizer) {
+      if (userData?.isOrganizer || userData?.canCreateEvents) {
         alert('既に主催者権限をお持ちです')
         router.push('/organizer')
         return
@@ -45,9 +46,9 @@ export default function PracticeRequestPage() {
       // 申請データを作成
       const request = {
         id: `request_${Date.now()}`,
-        userId: userData.id,
-        userEmail: userData.email,
-        userName: userData.name,
+        userId: user.id,
+        userEmail: user.email || '',
+        userName: user.user_metadata?.name || user.email?.split('@')[0] || 'ユーザー',
         reason: formData.reason,
         experience: formData.experience,
         plan: formData.plan,
@@ -63,7 +64,7 @@ export default function PracticeRequestPage() {
       
       // 既に申請中の場合はチェック
       const pendingRequest = requests.find((r: any) => 
-        r.userId === userData.id && r.status === 'pending'
+        r.userId === user.id && r.status === 'pending'
       )
       
       if (pendingRequest) {
